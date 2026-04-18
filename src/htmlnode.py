@@ -18,7 +18,3 @@ class HTMLNode():
     
     def __repr__(self):
         return f"tag={self.tag}, value={self.value}, children={self.children}, props={self.props}"
-    
-newNode = HTMLNode("p", "This is a paragraph", ["ul", "text"], {"href": "www.google.com", "target": "_blank"})
-print(newNode)
-print(newNode.props_to_html())
