@@ -1,5 +1,6 @@
 import unittest
-from split_nodes import split_nodes_delimiter
+from split_nodes import split_nodes_delimiter, split_nodes_image, split_nodes_link
+from util_funcs import extract_markdown_images, extract_markdown_links
 from textnode import TextNode, TextType
 
 class TestSplitNodes(unittest.TestCase):
@@ -126,6 +127,70 @@ class TestSplitNodes(unittest.TestCase):
                 TextNode("This has a `code` block", TextType.CODE)
             ]
         )
+    
+    def test_split_image(self):
+        node = TextNode(
+            "This is text that contains an ![image](https://i.imgur.com/zjjcJKZ.png)",
+            TextType.PLAIN
+        )
+        new_nodes = split_nodes_image([node])
+        self.assertListEqual(
+            [
+                TextNode("This is text that contains an ", TextType.PLAIN),
+                TextNode("image", TextType.IMAGE, "https://i.imgur.com/zjjcJKZ.png")
+            ],
+            new_nodes,
+        )
+    
+    def test_split_images(self):
+        node = TextNode(
+            "This text has this ![image](https://i.imgur.com/zjjcJKZ.png) and also this ![picture](https://www.boot.dev/_nuxt/new_boots_profile.DriFHGho.webp) in it.",
+            TextType.PLAIN
+        )
+        new_nodes = split_nodes_image([node])
+        self.assertListEqual(
+            [
+                TextNode("This text has this ", TextType.PLAIN),
+                TextNode("image", TextType.IMAGE, "https://i.imgur.com/zjjcJKZ.png"),
+                TextNode(" and also this ", TextType.PLAIN),
+                TextNode("picture", TextType.IMAGE, "https://www.boot.dev/_nuxt/new_boots_profile.DriFHGho.webp"),
+                TextNode(" in it.", TextType.PLAIN)
+
+            ],
+            new_nodes,
+        )
+      
+    def test_split_link(self):
+        node = TextNode(
+            "This text has a [link](www.google.com) in it.",
+            TextType.PLAIN
+        )
+        new_nodes = split_nodes_link([node])
+        self.assertListEqual(
+            [
+                TextNode("This text has a ", TextType.PLAIN),
+                TextNode("link", TextType.LINK, "www.google.com"),
+                TextNode(" in it.", TextType.PLAIN)
+            ],
+            new_nodes
+        )
+    
+    def test_split_links(self):
+        node = TextNode(
+            "This string has two [link](www.google.com) in [it](https://www.boot.dev/_nuxt/new_boots_profile.DriFHGho.webp)",
+            TextType.PLAIN
+        )
+        new_nodes = split_nodes_link([node])
+        self.assertListEqual(
+            [
+                TextNode("This string has two ", TextType.PLAIN),
+                TextNode("link", TextType.LINK, "www.google.com"),
+                TextNode(" in ", TextType.PLAIN),
+                TextNode("it", TextType.LINK, "https://www.boot.dev/_nuxt/new_boots_profile.DriFHGho.webp"),
+            ],
+            new_nodes
+        )
+    
 
 if __name__ == "__main__":
     unittest.main()
